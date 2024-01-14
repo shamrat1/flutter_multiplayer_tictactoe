@@ -58,7 +58,6 @@ class _GamePageState extends State<GamePage> {
               .updateData(
                   _gameState?.copyWith(playerTwoStatus: "joined").toJson())
               .then((value) {
-            print("Player two joined");
             _gameStream = _firestoreService?.gameStream();
             setState(() {});
             _startStreamListener();
@@ -87,11 +86,8 @@ class _GamePageState extends State<GamePage> {
   }
 
   void _startStreamListener() {
-    print(_gameStream);
     _gameStream?.listen(
       (data) {
-        print("Listening to changes");
-        print(data.data());
         _gameState = GameState.fromJson(data.data() ?? {});
         setState(() {});
         _checkWinner();
@@ -221,6 +217,7 @@ class _GamePageState extends State<GamePage> {
     } else {
       _gameState = gameState;
       setState(() {});
+      _checkWinner();
     }
   }
 
@@ -256,6 +253,12 @@ class _GamePageState extends State<GamePage> {
       _showWinDialog();
       return;
     }
+
+    // check draw
+    if (state.where((element) => element == "").isEmpty) {
+      _showDraw();
+      return;
+    }
   }
 
   _showWinDialog() {
@@ -265,4 +268,6 @@ class _GamePageState extends State<GamePage> {
       ),
     );
   }
+
+  _showDraw() {}
 }

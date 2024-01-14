@@ -15,10 +15,9 @@ class LobbyScreen extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 30.0),
             child: Text(
               "TicTacToe",
-              style: Theme.of(context)
-                  .textTheme
-                  .displaySmall!
-                  .copyWith(color: Theme.of(context).primaryColor),
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                  color: Theme.of(context).primaryColor,
+                  fontSize: MediaQuery.of(context).size.height * 0.050),
             ),
           ),
           SizedBox(
@@ -71,11 +70,13 @@ class LobbyScreen extends StatelessWidget {
                           ),
                           TextButton(
                             onPressed: () {
-                              print(_gameIdController.text.isEmpty);
                               if (_gameIdController.text.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text("Enter Game ID to proceed."),
+                                    content: Text(
+                                      "Enter Game ID to proceed.",
+                                      textAlign: TextAlign.center,
+                                    ),
                                   ),
                                 );
                                 return;
