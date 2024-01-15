@@ -21,6 +21,7 @@ class _GamePageState extends State<GamePage> {
   String? _gameID;
   FirestoreService? _firestoreService;
   Stream<DocumentSnapshot<Map<String, dynamic>>>? _gameStream;
+  List<String> _results = [];
 
   @override
   void initState() {
@@ -89,8 +90,10 @@ class _GamePageState extends State<GamePage> {
     _gameStream?.listen(
       (data) {
         _gameState = GameState.fromJson(data.data() ?? {});
+        if (_gameState?.results.length != _results.length) {
+          _results = _gameState?.results ?? [];
+        }
         setState(() {});
-        _checkWinner();
       },
       onError: (e) {
         print(e);
@@ -103,74 +106,103 @@ class _GamePageState extends State<GamePage> {
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("TicTacToe"),
-      ),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              height: (height * 0.10),
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.black87,
+        appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(kToolbarHeight),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 16.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _playerScoreBoard("Player 1", _gameState?.currentTurn == 1,
-                      _gameState?.results.where((e) => e == "1").length ?? 0),
-                  _playerScoreBoard("Player 2", _gameState?.currentTurn == 2,
-                      _gameState?.results.where((e) => e == "2").length ?? 0),
+                  Image.asset(
+                    "assets/logo_wbg.png",
+                    height: MediaQuery.of(context).size.height * 0.08,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  Text(
+                    "TicTacToe",
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        color: Theme.of(context).primaryColor,
+                        fontSize: MediaQuery.of(context).size.height * 0.030),
+                  ),
                 ],
               ),
-            ),
-            if (_gameID != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Text("Game ID: $_gameID"),
-              ),
-            SizedBox(
-              height: (height * 0.15) * 3,
-              child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    mainAxisExtent: (height * 0.15),
-                  ),
-                  itemCount: 9,
-                  itemBuilder: (context, i) {
-                    return GestureDetector(
-                      onTap: () => _onTileTapped(i),
-                      child: Container(
-                        width: width * 0.20,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.background,
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          _gameState?.state[i] ?? "",
-                          style: Theme.of(context)
-                              .textTheme
-                              .displayMedium!
-                              .copyWith(
-                                color:
-                                    Theme.of(context).colorScheme.onBackground,
-                              ),
-                        ),
-                      ),
-                    );
-                  }),
-            ),
-            if (_gameState != null && _gameState!.playerTwoStatus == null)
-              const Padding(
-                padding: EdgeInsets.all(24.0),
-                child: Text(
-                  "Wait Till Player Two Joins",
-                  textAlign: TextAlign.center,
+            )),
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                height: (height * 0.10),
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _playerScoreBoard("Player 1", _gameState?.currentTurn == 1,
+                        _results.where((e) => e == "1").length),
+                    _playerScoreBoard("Player 2", _gameState?.currentTurn == 2,
+                        _results.where((e) => e == "2").length),
+                  ],
                 ),
               ),
-          ],
+              if (_gameID != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text(
+                    "Game ID: $_gameID",
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                  ),
+                ),
+              Container(
+                padding: const EdgeInsets.all(16),
+                height: (height * 0.15) * 3 + 32,
+                child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisExtent: (height * 0.15),
+                    ),
+                    itemCount: 9,
+                    itemBuilder: (context, i) {
+                      return GestureDetector(
+                        onTap: () => _onTileTapped(i),
+                        child: Container(
+                          width: width * 0.20,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                color: Theme.of(context).primaryColor),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            _gameState?.state[i] ?? "",
+                            style: Theme.of(context)
+                                .textTheme
+                                .displayMedium!
+                                .copyWith(
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                          ),
+                        ),
+                      );
+                    }),
+              ),
+              if (_gameState != null && _gameState!.playerTwoStatus == null)
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Text(
+                    "Wait Till Player Two Joins",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -192,7 +224,9 @@ class _GamePageState extends State<GamePage> {
         Text(
           player,
           style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                color: turn ? Colors.black : Colors.grey.shade300,
+                color: turn
+                    ? Theme.of(context).primaryColor
+                    : Colors.grey.shade300,
               ),
         ),
       ],
@@ -214,11 +248,26 @@ class _GamePageState extends State<GamePage> {
     );
     if (widget.playOnline) {
       _firestoreService!.addData(gameState.toJson());
+      _checkWinner();
     } else {
       _gameState = gameState;
       setState(() {});
       _checkWinner();
     }
+  }
+
+  String? _findDuplicate(List<String> list) {
+    Set<String> uniqueValues = Set<String>();
+
+    for (String value in list) {
+      if (!uniqueValues.add(value)) {
+        // If adding the value to the set returns false, it means it's a duplicate
+        return value;
+      }
+    }
+
+    // No duplicates found
+    return null;
   }
 
   void _checkWinner() {
@@ -262,11 +311,81 @@ class _GamePageState extends State<GamePage> {
   }
 
   _showWinDialog() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Winn"),
-      ),
-    );
+    _results.add((_gameState?.currentTurn == 1 ? 2 : 1).toString());
+
+    setState(() {});
+    if (_hasDuplicate(_results)) {
+      var winner = int.parse(_findDuplicate(_results) ?? "0");
+      showAdaptiveDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog.adaptive(
+              title: const Text(
+                "Game Over",
+              ),
+              shape: Border.all(color: Theme.of(context).primaryColor),
+              content: Text("Player $winner has won the Match."),
+              actions: [
+                TextButton(
+                  onPressed: () =>
+                      Navigator.popUntil(context, ModalRoute.withName('/')),
+                  child: const Text("Dismiss"),
+                ),
+              ],
+            );
+          });
+    }
+    _resetStateForNextRound();
+  }
+
+  void _resetStateForNextRound() {
+    if (widget.playOnline) {
+      var gameState = _gameState?.copyWith(
+        results: _results,
+        state: [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+        ],
+      );
+      _firestoreService?.addData(gameState?.toJson());
+    } else {
+      _gameState = _gameState?.copyWith(
+        results: _results,
+        state: [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+        ],
+      );
+      setState(() {});
+    }
+  }
+
+  bool _hasDuplicate(List<String> list) {
+    Set<String> uniqueValues = Set<String>();
+
+    for (String value in list) {
+      if (!uniqueValues.add(value)) {
+        // If adding the value to the set returns false, it means it's a duplicate
+        return true;
+      }
+    }
+
+    // No duplicates found
+    return false;
   }
 
   _showDraw() {}

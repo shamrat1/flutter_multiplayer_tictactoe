@@ -18,7 +18,7 @@ class GameButtonWidget extends StatelessWidget {
         ),
         child: Text(
           title.toUpperCase(),
-          style: Theme.of(context).textTheme.titleMedium!.copyWith(
+          style: Theme.of(context).textTheme.titleSmall!.copyWith(
                 color: Theme.of(context).colorScheme.onPrimary,
               ),
         ),

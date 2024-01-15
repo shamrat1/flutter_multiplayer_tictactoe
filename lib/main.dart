@@ -20,9 +20,19 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorSchemeSeed: Colors.black,
-        textTheme: GoogleFonts.pressStart2pTextTheme(),
-      ),
+          colorSchemeSeed: Colors.purple,
+          textTheme: GoogleFonts.pressStart2pTextTheme(),
+          dialogTheme: DialogTheme(
+            backgroundColor: Colors.black,
+            titleTextStyle:
+                GoogleFonts.pressStart2pTextTheme().bodyLarge!.copyWith(
+                      color: Theme.of(context).primaryColor,
+                    ),
+            contentTextStyle:
+                GoogleFonts.pressStart2pTextTheme().bodyMedium!.copyWith(
+                      color: Theme.of(context).primaryColor,
+                    ),
+          )),
       home: LobbyScreen(),
     );
   }
