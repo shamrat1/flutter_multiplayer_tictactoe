@@ -388,5 +388,32 @@ class _GamePageState extends State<GamePage> {
     return false;
   }
 
-  _showDraw() {}
+  _showDraw() {
+    _results.add("1");
+    _results.add("2");
+
+    setState(() {});
+
+    showAdaptiveDialog(
+        context: context,
+        builder: (context) {
+          return FutureBuilder(
+              future: Future.delayed(const Duration(seconds: 3))
+                  .then((value) => true),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  Navigator.of(context).pop();
+                }
+                return AlertDialog.adaptive(
+                  title: const Text(
+                    "Round Draw",
+                  ),
+                  shape: Border.all(color: Theme.of(context).primaryColor),
+                  content: const Text("Each player have received 1 Point."),
+                );
+              });
+        });
+
+    _resetStateForNextRound();
+  }
 }
